@@ -19,6 +19,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
       - print_pipeline_id:
           to: $CIRCLE_WORKFLOW_ID
 
