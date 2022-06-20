@@ -9,7 +9,7 @@ commands:
     parameters:
       to:
         type: string
-        default: $CIRCLE_WORKFLOW_ID
+        default: "Hello Command"
     steps:
       - run: echo << parameters.to >>
 
@@ -19,9 +19,8 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - checkout
-      - print_pipeline_id
-
+      - print_pipeline_id:
+          to: $CIRCLE_WORKFLOW_ID
 
   print-world:
     docker:
