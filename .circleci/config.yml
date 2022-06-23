@@ -15,6 +15,19 @@ commands:
 
 jobs:
 
+  create_infrastructure: 
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name infraStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
+
   new-job:
     docker:
       - image: cimg/base:stable
@@ -23,14 +36,15 @@ jobs:
       - print_pipeline_id:
           to: $CIRCLE_WORKFLOW_ID
 
-  print-world:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: "Print World"
-          command: echo "World!"
+  # exit-on-purpose:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - run: exit 1
+  #     - run:
+  #         name: on error
+  #         command: echo "Hello Error!"
+  #         when: on_fail
 
   print-name:
     docker:
@@ -74,12 +88,11 @@ workflows:
   say-hello-workflow:
 
     jobs:
+      - create_infrastructure
+      # - exit-on-purpose
       - new-job    
-      - print-world
       - save_hello_world_output
       - print_output_file:
           requires:
             - save_hello_world_output
-      - print-name:
-          requires:
-            - print-world
+      - print-name
