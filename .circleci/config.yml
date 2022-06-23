@@ -33,6 +33,7 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - run: apk add --update openssh-client git
       - add_ssh_keys:
           fingerprints: ["09:1e:fe:a5:04:c4:d4:af:0c:cc:97:a2:cd:bf:c6:6f"] # ID in the section where you registered the SSH Key
       - run:
