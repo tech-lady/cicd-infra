@@ -15,18 +15,35 @@ commands:
 
 jobs:
 
-  create_infrastructure: 
+  # create_infrastructure: 
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Create Cloudformation Stack
+  #         command: |
+  #           aws cloudformation deploy \
+  #             --template-file template.yml \
+  #             --stack-name infraStack-${CIRCLE_WORKFLOW_ID:0:5} \
+  #             --region us-east-1
+
+  configure_infrastructure: 
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: ["8c:8c:86:af:8d:04:d4:94:16:24:ec:be:d4:ef:cd:6a"] # ID in the section where you registered the SSH Key
       - run:
-          name: Create Cloudformation Stack
+          name: Install dependencies
           command: |
-            aws cloudformation deploy \
-              --template-file template.yml \
-              --stack-name infraStack-${CIRCLE_WORKFLOW_ID:0:5} \
-              --region us-east-1
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt main-remote.yml              
 
   new-job:
     docker:
@@ -88,7 +105,8 @@ workflows:
   say-hello-workflow:
 
     jobs:
-      - create_infrastructure
+      # - create_infrastructure
+      - configure_infrastructure
       # - exit-on-purpose
       - new-job    
       - save_hello_world_output
